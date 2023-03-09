@@ -8,6 +8,7 @@ import com.abc.bank.accountservice.repository.AccountsRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import io.micrometer.core.annotation.Timed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +33,7 @@ public class AccountsController {
     private LoansFeignClient loansFeignClient;
 
     @PostMapping("/myAccount")
+    @Timed(value = "getAccountDetails.time", description = "Time taken to return account details")
     public Accounts getAccountDetails(@RequestBody Customer customer){
         return accountsRepository.findByCustomerId(customer.getCustomerId());
     }
