@@ -4,12 +4,15 @@ import com.abc.bank.accountservice.client.CardsFeignClient;
 import com.abc.bank.accountservice.client.LoansFeignClient;
 import com.abc.bank.accountservice.config.AccountServiceConfig;
 import com.abc.bank.accountservice.model.*;
-import com.abc.bank.accountservice.repository.AccountsRepository;
+import com.abc.bank.accountservice.service.AccountsService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import io.micrometer.core.annotation.Timed;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,24 +21,19 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 public class AccountsController {
-
-    @Autowired
-    private AccountsRepository accountsRepository;
-
-    @Autowired
     private AccountServiceConfig serviceConfig;
-
-    @Autowired
     private CardsFeignClient cardsFeignClient;
 
-    @Autowired
     private LoansFeignClient loansFeignClient;
+    private AccountsService service;
 
     @PostMapping("/myAccount")
     @Timed(value = "getAccountDetails.time", description = "Time taken to return account details")
-    public Accounts getAccountDetails(@RequestBody Customer customer){
-        return accountsRepository.findByCustomerId(customer.getCustomerId());
+    public ResponseEntity<Accounts> getAccountDetails(@RequestBody Customer customer){
+        var account = service.getAccountDetails(customer);
+        return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
     @GetMapping("/accounts/properties")
@@ -54,7 +52,7 @@ public class AccountsController {
 
     @PostMapping("/customer-details")
     public CustomerDetails getCustomerDetails(@RequestBody Customer customer){
-        Accounts accounts = accountsRepository.findByCustomerId(customer.getCustomerId());
+        Accounts accounts = service.getAccountDetails(customer);
         List<Cards> cards = cardsFeignClient.getCustomerCards(customer);
         List<Loans> loans = loansFeignClient.getCustomerLoans(customer);
 
