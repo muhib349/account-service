@@ -6,4 +6,5 @@ import org.springframework.stereotype.Service;
 
 public interface AccountsService {
     Accounts getAccountDetails(Customer customer);
+    void saveAccounts(Accounts accounts);
 }

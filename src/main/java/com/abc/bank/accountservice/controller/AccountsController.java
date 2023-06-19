@@ -40,6 +40,12 @@ public class AccountsController {
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
+    @PostMapping("/save-accounts")
+    public ResponseEntity<String> saveAccounts(@RequestBody Accounts accounts){
+        service.saveAccounts(accounts);
+        return new ResponseEntity<>("Your request has been successfully received!", HttpStatus.OK);
+    }
+
     @GetMapping("/accounts/properties")
     public String getConfigProperties() throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
